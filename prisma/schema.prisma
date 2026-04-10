@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id              String   @id @default(cuid())
+  name            String   @default("User")
+  motivationalText String  @default("BE CONSISTENT")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Habit {
+  id        String   @id @default(cuid())
+  name      String
+  icon      String   @default("CircleDot")
+  color     String   @default("#6366f1")
+  category  String   @default("General")
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  logs      HabitLog[]
+}
+
+model HabitLog {
+  id        String   @id @default(cuid())
+  habitId   String
+  date      String   // YYYY-MM-DD format
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  habit     Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, date])
+}
+
+model SleepLog {
+  id        String   @id @default(cuid())
+  date      String   @unique // YYYY-MM-DD format
+  hours     Int      @default(7) // 0-12
+  quality   Int      @default(3) // 1-5
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+model DailyNote {
+  id        String   @id @default(cuid())
+  date      String   @unique // YYYY-MM-DD format
+  content   String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DailyGoal {
+  id        String   @id @default(cuid())
+  date      String   // YYYY-MM-DD format
+  text      String
+  completed Boolean  @default(false)
+  priority  String   @default("medium") // high, medium, low
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date, text])
+}
